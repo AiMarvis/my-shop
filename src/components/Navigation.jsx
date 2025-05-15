@@ -7,15 +7,12 @@ import { ShoppingCart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Navigation({ cartItems = 0 }) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const [cartCount, setCartCount] = useState(cartItems);
 
   // 로컬 스토리지에서 장바구니 정보 가져오기
   useEffect(() => {
-    // 처음에는 props로 전달된 cartItems 값을 사용
     setCartCount(cartItems);
-
-    // 로컬 스토리지에서 장바구니 정보 읽기
     const loadCartFromStorage = () => {
       try {
         const savedCart = localStorage.getItem('cart');
@@ -27,27 +24,17 @@ export default function Navigation({ cartItems = 0 }) {
         console.error('장바구니 데이터 로드 중 오류:', error);
       }
     };
-
-    // 페이지 로드 시 로컬 스토리지에서 장바구니 정보 읽기
     loadCartFromStorage();
-
-    // storage 이벤트 리스너 추가
     const handleStorageChange = (e) => {
       if (e.key === 'cart') {
         loadCartFromStorage();
       }
     };
-
-    // 카트 업데이트 이벤트 핸들러
     const handleCartUpdate = () => {
       loadCartFromStorage();
     };
-
-    // 다른 탭에서 로컬 스토리지가 변경되었을 때 감지
     window.addEventListener('storage', handleStorageChange);
-    // 같은 탭 내에서 발생하는 카트 업데이트 이벤트 감지
     window.addEventListener('cartUpdated', handleCartUpdate);
-
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('cartUpdated', handleCartUpdate);
@@ -69,6 +56,11 @@ export default function Navigation({ cartItems = 0 }) {
               <Link href="/about" className="text-gray-500 hover:text-gray-900 px-3 py-2">
                 소개
               </Link>
+              {user && profile && profile.role === 'admin' && (
+                <Link href="/admin" className="text-gray-500 hover:text-gray-900 px-3 py-2">
+                  관리
+                </Link>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-4">
